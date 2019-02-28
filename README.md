@@ -1,8 +1,5 @@
 # A minimal Ubuntu base image modified for Docker-friendliness
 
-[![](https://badge.imagelayers.io/phusion/baseimage:latest.svg)](https://imagelayers.io/?images=phusion/baseimage:latest 'Get your own badge on imagelayers.io')
-[![Travis](https://img.shields.io/travis/phusion/baseimage-docker.svg)](https://travis-ci.org/phusion/baseimage-docker)
-
 _Baseimage-docker only consumes 8.3 MB RAM and is much more powerful than Busybox or Alpine. See why below._
 
 Baseimage-docker is a special [Docker](https://www.docker.com) image that is configured for correct use within Docker containers. It is Ubuntu, plus:
@@ -13,7 +10,7 @@ Baseimage-docker is a special [Docker](https://www.docker.com) image that is con
 
 You can use it as a base for your own Docker images.
 
-Baseimage-docker is available for pulling from [the Docker registry](https://registry.hub.docker.com/u/phusion/baseimage/)!
+Baseimage-docker is available for pulling from [the Docker registry](https://registry.hub.docker.com/u/imtlab/baseimage/)!
 
 ### What are the problems with the stock Ubuntu base image?
 
@@ -125,9 +122,9 @@ It follows that Baseimage-docker also does not deny the Docker philosophy. In fa
 
 To look around in the image, run:
 
-    docker run --rm -t -i phusion/baseimage:<VERSION> /sbin/my_init -- bash -l
+    docker run --rm -t -i imtlab/baseimage:<VERSION> /sbin/my_init -- bash -l
 
-where `<VERSION>` is [one of the baseimage-docker version numbers](https://github.com/phusion/baseimage-docker/blob/master/Changelog.md).
+where `<VERSION>` is [one of the baseimage-docker version numbers]
 
 You don't have to download anything manually. The above command will automatically pull the baseimage-docker image from the Docker registry.
 
@@ -137,13 +134,13 @@ You don't have to download anything manually. The above command will automatical
 <a name="getting_started"></a>
 ### Getting started
 
-The image is called `phusion/baseimage`, and is available on the Docker registry.
+The image is called `imtlab/baseimage`, and is available on the Docker registry.
 
-    # Use phusion/baseimage as base image. To make your builds reproducible, make
+    # Use imtlab/baseimage as base image. To make your builds reproducible, make
     # sure you lock down to a specific version, not to `latest`!
     # See https://github.com/phusion/baseimage-docker/blob/master/Changelog.md for
     # a list of version numbers.
-    FROM phusion/baseimage:<VERSION>
+    FROM imtlab/baseimage:<VERSION>
 
     # Use baseimage-docker's init system.
     CMD ["/sbin/my_init"]
@@ -295,7 +292,7 @@ Here is an example shell session showing you how the dumps look like:
 
     $ docker run -t -i \
       --env FOO=bar --env HELLO='my beautiful world' \
-      phusion/baseimage:<VERSION> /sbin/my_init -- \
+      imtlab/baseimage:<VERSION> /sbin/my_init -- \
       bash -l
     ...
     *** Running bash -l...
@@ -338,15 +335,11 @@ Baseimage-docker uses syslog-ng to provide a syslog facility to the container. S
 In order to ensure that all application log messages are captured by syslog-ng, syslog-ng is started separately before the runit supervisor process, and shutdown after runit exits. This uses the [startup script facility](#running_startup_scripts) provided by this image. This avoids a race condition which would exist if syslog-ng were managed as an runit service, where runit kills syslog-ng in parallel with the container's other services, causing log messages to be dropped during a graceful shutdown if syslog-ng exits while logs are still being produced by other services.
 
 <a name="upgrading_os"></a>
-### Upgrading the operating system inside the container
+### Upgrading the operating system inside the container and versioning
 
 Baseimage-docker images contain an Ubuntu operating system (see OS version at [Overview](#overview)). You may want to update this OS from time to time, for example to pull in the latest security updates. OpenSSL is a notorious example. Vulnerabilities are discovered in OpenSSL on a regular basis, so you should keep OpenSSL up-to-date as much as you can.
 
-While we release Baseimage-docker images with the latest OS updates from time to time, you do not have to rely on us. You can update the OS inside Baseimage-docker images yourself, and it is recommended that you do this instead of waiting for us.
-
-To upgrade the OS in the image, run this in your Dockerfile:
-
-    RUN apt-get update && apt-get upgrade -y -o Dpkg::Options::="--force-confold"
+The current version of baseimage-docker uses `Ubuntu 18.04 LTS`. As such IMT is going to version its base image by adopting the Ubuntu year as its major version. For example, the first release will be `imtlab/baseimage:18.0.0`. and it will stay `18.x.x` until `Ubuntu 20.04 LTS` is released. However, between Ubuntu 18 and 20 changes to the image will need to made. As such, new functionality will bump the minor levels of versioning (`imtlab/baseimage:18.1.0`), while basic patching or updating if system libs will result in a patch level change (`imtlab/baseimage:18.0.1`)
 
 <a name="container_administration"></a>
 ## Container administration
@@ -377,7 +370,7 @@ This will perform the following:
 
 For example:
 
-    $ docker run phusion/baseimage:<VERSION> /sbin/my_init -- ls
+    $ docker run imtlab/baseimage:<VERSION> /sbin/my_init -- ls
     *** Running /etc/rc.local...
     *** Booting runit daemon...
     *** Runit started as PID 80
@@ -391,7 +384,7 @@ You may find that the default invocation is too noisy. Or perhaps you don't want
 
 The following example runs `ls` without running the startup files and with less messages, while running all runit services:
 
-    $ docker run phusion/baseimage:<VERSION> /sbin/my_init --skip-startup-files --quiet -- ls
+    $ docker run imtlab/baseimage:<VERSION> /sbin/my_init --skip-startup-files --quiet -- ls
     bin  boot  dev  etc  home  image  lib  lib64  media  mnt  opt  proc  root  run  sbin  selinux  srv  sys  tmp  usr  var
 
 <a name="run_inside_existing_container"></a>
@@ -580,14 +573,8 @@ If for whatever reason you want to build the image yourself instead of downloadi
 
 Clone this repository:
 
-    git clone https://github.com/phusion/baseimage-docker.git
+    git clone https://github.com/imtlab/baseimage-docker.git
     cd baseimage-docker
-
-Start a virtual machine with Docker in it. You can use the Vagrantfile that we've already provided.
-
-    vagrant up
-    vagrant ssh
-    cd /vagrant
 
 Build the image:
 

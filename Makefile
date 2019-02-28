@@ -1,9 +1,13 @@
-NAME = phusion/baseimage
-VERSION = 0.11
+NAME = imtlab/baseimage
+VERSION = 18.0.0
 
-.PHONY: all build test tag_latest release ssh
+.PHONY: all artifact build test tag_latest release ssh
 
 all: build
+
+artifact:
+	@echo "Creating artifact $$(echo "$(NAME)" | sed 's/\//_/g')_$(VERSION).tar"
+	@docker save -o $$(echo "$(NAME)" | sed 's/\//_/g')_$(VERSION).tar $(NAME):$(VERSION)
 
 build:
 	docker build -t $(NAME):$(VERSION) --rm image
@@ -17,7 +21,6 @@ tag_latest:
 release: test tag_latest
 	@if ! docker images $(NAME) | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME) version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	docker push $(NAME)
-	@echo "*** Don't forget to create a tag by creating an official GitHub release."
 
 ssh:
 	chmod 600 image/services/sshd/keys/insecure_key

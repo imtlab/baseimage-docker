@@ -1,5 +1,5 @@
 FROM ubuntu:18.04
-MAINTAINER Phusion <info@phusion.nl>
+LABEL maintainer="infra-ops@imtlab.io"
 
 COPY . /bd_build
 

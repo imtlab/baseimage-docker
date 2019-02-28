@@ -1,0 +1,47 @@
+image: docker:stable
+
+variables:
+  DOCKER_HOST: tcp://localhost:2375/
+  DOCKER_DRIVER: overlay2
+  NAME: imtlab/baseimage
+  VERSION: "18.0.0"
+
+services:
+  - docker:dind
+
+stages:
+  - build
+  - test
+  - push
+
+before_script:
+  - apk add --update alpine-sdk bash
+
+build:
+  stage: build
+  artifacts:
+   paths:
+    - $CI_COMMIT_SHORT_SHA.tgz
+   expire_in: 1 day
+  script:
+    - make build
+    - docker save $NAME:$VERSION | gzip > $CI_COMMIT_SHORT_SHA.tgz
+
+test:
+  stage: test
+  script:
+    - docker load -i $CI_COMMIT_SHORT_SHA.tgz
+    - make test
+  dependencies:
+    - build
+
+push:
+  stage: push
+  only:
+    - tags
+  script:
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    - docker load -i $CI_COMMIT_SHORT_SHA.tgz
+    - make release
+  dependencies:
+    - build

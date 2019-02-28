@@ -13,3 +13,5 @@ find / -name *.pyc -delete
 find / -name *__pycache__* -delete
 
 rm -f /etc/ssh/ssh_host_*
+
+rm -rf /bd_build
