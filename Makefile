@@ -1,5 +1,5 @@
 NAME = imtlab/baseimage
-VERSION = 18.0.0
+VERSION = 18.0.1
 
 .PHONY: all artifact build test tag_latest release ssh
 
